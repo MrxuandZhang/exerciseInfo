@@ -1,0 +1,12 @@
+#in_msg{
+    height: 41px;
+    margin-left: 9px;
+    width: 100px;
+    background: gray;
+    font-size: 22px;
+    height: 41px;
+    padding: 19px;
+    box-sizing: border-box;
+    border: solid 1px #ddd;
+
+}

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xmxy.dao.UserDao">
+   <cache/>
+   <sql id="sqlCol">id,userName,userPassword</sql>
+    <sql id="sqlCondition">
+        <where>
+            <if test="t!=null and t.userName!=null and t.userName!=''">
+                userName=#{t.userName}
+            </if>
+            <if test="t!=null and t.userPassword!=null and t.userPassword!=''">
+                and userPassword=#{t.userPasswod}
+            </if>
+        </where>
+    </sql>
+    <resultMap id="UserMap" type="userInfo">
+        <id property="id" column="id"></id>
+        <result property="userName" column="userName"></result>
+        <result property="userPassword" column="userPassword"></result>
+    </resultMap>
+   <insert id="add" parameterType="userInfo" useGeneratedKeys="true" keyProperty="id">
+      insert into userinfo (userName,userPassword) values (#{userName},#{userPassword})
+   </insert>
+   <delete id="del">
+       delete form userinfo where id=#{sid}
+   </delete>
+   <select id="query" resultMap="UserMap">
+       select <include refid="sqlCol"></include> from userinfo
+   </select>
+   <update id="updatePass" parameterType="userInfo">
+       update userinfo set userPassword=#{userPassword} where id=#{id}
+   </update>
+   <select id="getTotal" resultType="int">
+       select count(*) from userinfo
+   </select>
+    <select id="login" resultType="userInfo" parameterType="userInfo">
+        select <include refid="sqlCol"></include> from userInfo where userName=#{userName} and userPassword=#{userPassword}
+    </select>
+    <select id="get">
+        select <include refid="sqlCol"></include> from userinfo where id=#{id}
+    </select>
+    <select id="queryLimit" resultMap="UserMap">
+        select <include refid="sqlCol"></include> from userInfo
+        <include refid="sqlCondition"></include>
+        <if test="start!=null">
+          limit #{start},#{pageNum}
+        </if>
+    </select>
+</mapper>

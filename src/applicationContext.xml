@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+      http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context-4.2.xsd
+      http://www.springframework.org/schema/aop
+      http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+      http://www.springframework.org/schema/mvc
+      http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+      http://www.springframework.org/schema/tx
+      http://www.springframework.org/schema/tx/spring-tx-4.2.xsd"
+       default-autowire="byName">
+    <context:component-scan base-package="com"></context:component-scan>
+    <mvc:annotation-driven></mvc:annotation-driven>
+    <mvc:default-servlet-handler></mvc:default-servlet-handler>
+     <bean id="dataSource"  class="org.apache.commons.dbcp.BasicDataSource">
+         <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+         <property name="url" value="jdbc:mysql://localhost/caipiao?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=true"/>
+         <property name="username" value="root"></property>
+         <property name="password" value="xu123"></property>
+         <property name="initialSize" value="15"></property>
+         <property name="maxActive" value="10"></property>
+         <property name="minIdle" value="1"></property>
+         <property name="maxWait" value="3000"></property>
+     </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:com/xmxy/entity/UsreMapper.xml</value>
+            </list>
+        </property>
+        <property name="typeAliasesPackage" value="com.xmxy.entity"/>
+    </bean>
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"/>
+    <tx:advice id="txtAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="*add*" propagation="REQUIRED"/>
+            <tx:method name="update*" propagation="REQUIRED"/>
+            <tx:method name="del*" propagation="REQUIRED"/>
+            <tx:method name="*" propagation="REQUIRED" />
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:pointcut id="pointcut" expression="execution( * com.xmxy.service.impl.*.*(..))"/>
+        <aop:advisor advice-ref="txtAdvice" pointcut-ref="pointcut"/>
+    </aop:config>
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.xmxy.dao"/>
+    </bean>
+    <bean  class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="10240000"/>
+    </bean>
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <mvc:exclude-mapping path="/*login"/>
+            <mvc:exclude-mapping path="/index"/>
+            <mvc:exclude-mapping path="/*.css"/>
+            <mvc:exclude-mapping path="/*.js"/>
+            <mvc:exclude-mapping path="/*.png"/>
+            <mvc:exclude-mapping path="/*.gif"/>
+            <mvc:exclude-mapping path="/*.jpg"/>
+            <mvc:exclude-mapping path="/*.jpeg"/>
+            <bean class="com.xmxy.Interceptor.PermissionInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>
